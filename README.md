@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KEN (Single Folder Next.js App)
 
-## Getting Started
+KEN now runs fully inside Next.js (frontend + auth API in one project).
 
-First, run the development server:
+## Included auth API routes
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `GET /sanctum/csrf-cookie`
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/auth/me`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/google/redirect`
+- `GET /api/v1/auth/google/callback`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Copy env:
+   - `cp .env.local.example .env.local`
+2. Set required values in `.env.local`:
+   - `NEXT_PUBLIC_APP_URL=http://localhost:3000`
+   - `AUTH_SECRET=<long-random-secret>`
+3. For Google login, add:
+   - `GOOGLE_CLIENT_ID=...`
+   - `GOOGLE_CLIENT_SECRET=...`
+4. Start app:
+   - `npm run dev`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Google OAuth localhost config
 
-## Learn More
+In Google Cloud Console OAuth app:
 
-To learn more about Next.js, take a look at the following resources:
+- **Authorized JavaScript origin**: `http://localhost:3000`
+- **Authorized redirect URI**: `http://localhost:3000/api/v1/auth/google/callback`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Without those values, Google login is expected to fail.
