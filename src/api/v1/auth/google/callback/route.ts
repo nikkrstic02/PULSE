@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { http } from "@/lib/http";
 
 export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";

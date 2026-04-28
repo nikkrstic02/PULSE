@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { findOrCreateGoogleUser } from "@/lib/users-store";
 import { issueSessionCookie, readAndClearGoogleState } from "@/lib/auth-server";
-
-function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
-}
+import { getAppUrl, getGoogleSuccessPath } from "@/lib/oauth";
 
 type GoogleTokenResponse = {
   access_token?: string;
@@ -16,7 +13,7 @@ type GoogleUserInfo = {
 };
 
 export async function GET(req: Request) {
-  const appUrl = getAppUrl();
+  const appUrl = getAppUrl(req);
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
@@ -25,6 +22,13 @@ export async function GET(req: Request) {
   }
 
   const url = new URL(req.url);
+  const googleError = url.searchParams.get("error");
+  if (googleError) {
+    const loginUrl = new URL("/login", appUrl);
+    loginUrl.searchParams.set("error", `google_${googleError}`);
+    return NextResponse.redirect(loginUrl);
+  }
+
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const { state: expectedState, nextPath } = await readAndClearGoogleState();
@@ -73,5 +77,5 @@ export async function GET(req: Request) {
   const user = await findOrCreateGoogleUser(userInfo.email.toLowerCase());
   await issueSessionCookie(user);
 
-  return NextResponse.redirect(new URL(`${nextPath}?google=success`, appUrl));
+  return NextResponse.redirect(new URL(getGoogleSuccessPath(nextPath), appUrl));
 }

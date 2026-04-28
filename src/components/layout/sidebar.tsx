@@ -13,20 +13,25 @@ import {
   Plane,
   SquareCheckBig,
 } from "lucide-react";
+import { useLanguageCopy } from "@/lib/i18n";
 
 const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/lists", label: "Lists", icon: ListChecks },
-  { href: "/todos", label: "To-Do", icon: SquareCheckBig },
-  { href: "/expenses", label: "Expenses", icon: BadgeDollarSign },
-  { href: "/recipes", label: "Recipes", icon: NotebookPen },
-  { href: "/calories", label: "Calories", icon: Flame },
-  { href: "/trips", label: "Trips", icon: Plane },
-  { href: "/movies", label: "Movies", icon: Clapperboard },
-];
+  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+  { href: "/lists", labelKey: "lists", icon: ListChecks },
+  { href: "/todos", labelKey: "todos", icon: SquareCheckBig },
+  { href: "/expenses", labelKey: "expenses", icon: BadgeDollarSign },
+  { href: "/recipes", labelKey: "recipes", icon: NotebookPen },
+  { href: "/calories", labelKey: "calories", icon: Flame },
+  { href: "/trips", labelKey: "trips", icon: Plane },
+  { href: "/movies", labelKey: "movies", icon: Clapperboard },
+] as const;
+
+type NavLabelKey = (typeof nav)[number]["labelKey"];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { copy } = useLanguageCopy();
+  const modulesCopy = copy.modules as Record<NavLabelKey, string>;
 
   return (
     <aside className="w-72 border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] p-4">
@@ -57,7 +62,7 @@ export function Sidebar() {
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-xs text-slate-200">
                   <Icon size={14} />
                 </span>
-                <span>{item.label}</span>
+                <span>{modulesCopy[item.labelKey]}</span>
               </motion.div>
             </Link>
           );

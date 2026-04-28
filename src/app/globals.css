@@ -27,6 +27,7 @@ body {
     radial-gradient(circle at 100% 10%, #06b6d44a 0, transparent 38%),
     radial-gradient(circle at 50% 100%, #0ea5e933 0, transparent 45%),
     var(--shell);
+  background-attachment: fixed;
   color: var(--text-primary);
 }
 
@@ -50,6 +51,23 @@ body {
   backdrop-filter: blur(12px);
 }
 
+.ken-auth-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 0% 0%, #4f46e54a 0, transparent 42%),
+    radial-gradient(circle at 100% 10%, #06b6d44a 0, transparent 38%),
+    radial-gradient(circle at 50% 100%, #0ea5e933 0, transparent 45%),
+    var(--shell);
+  background-attachment: fixed;
+}
+
+.ken-auth-alert {
+  border: 1px solid rgba(254, 202, 202, 0.65);
+  background: rgba(254, 242, 242, 0.95);
+  color: #b91c1c;
+}
+
 html[data-theme="light"],
 body[data-theme="light"] {
   --shell: #eef2fb;
@@ -70,6 +88,18 @@ body[data-theme="light"] .ken-glass {
   border-color: rgba(148, 163, 184, 0.24);
   color: #0f172a;
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.05);
+}
+
+html[data-theme="light"] .ken-auth-shell,
+body[data-theme="light"] .ken-auth-shell {
+  background: #eef3fb;
+}
+
+html[data-theme="light"] .ken-auth-alert,
+body[data-theme="light"] .ken-auth-alert {
+  border-color: rgba(254, 202, 202, 0.85);
+  background: #fff1f2;
+  color: #b91c1c;
 }
 
 html[data-theme="light"] input,

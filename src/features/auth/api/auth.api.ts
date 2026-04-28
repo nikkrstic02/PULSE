@@ -16,6 +16,12 @@ export type RegisterPayload = LoginPayload & {
   password_confirmation: string;
 };
 
+export type ForgotPasswordPayload = {
+  email: string;
+  password: string;
+  password_confirmation: string;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -59,8 +65,14 @@ export async function logout(): Promise<void> {
   await http.post("/api/v1/auth/logout");
 }
 
-export function getGoogleRedirectUrl(): string {
-  return "/api/v1/auth/google/redirect";
+export async function requestPasswordReset(payload: ForgotPasswordPayload): Promise<void> {
+  await ensureCsrfCookie();
+  await http.post("/api/v1/auth/forgot-password", payload);
+}
+
+export function getGoogleRedirectUrl(nextPath = "/dashboard"): string {
+  const params = new URLSearchParams({ next: nextPath });
+  return `/api/v1/auth/google/redirect?${params.toString()}`;
 }
 
 export async function googleLogin(code: string): Promise<User> {

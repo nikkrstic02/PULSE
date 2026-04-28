@@ -3,23 +3,25 @@
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getGoogleRedirectUrl } from "@/features/auth/api/auth.api";
-import { useAuth } from "@/features/auth/context/auth-context";
 import { useLoginMutation } from "@/features/auth/queries/use-login-mutation";
+import { useLanguageCopy } from "@/lib/i18n";
 
-function getErrorMessage(error: unknown): string | null {
+type AuthCopy = ReturnType<typeof useLanguageCopy>["copy"]["auth"];
+
+function getErrorMessage(error: unknown, copy: AuthCopy): string | null {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
     if (status && status >= 500) {
-      return "Authentication service is unavailable right now. Please try again.";
+      return copy.serviceUnavailable;
     }
     const data = error.response?.data as unknown;
     if (data && typeof data === "object" && "message" in data) {
       const msg = (data as { message?: unknown }).message;
       if (typeof msg === "string") {
         if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("wrong")) {
-          return "Wrong email or password";
+          return copy.wrongCredentials;
         }
         return msg;
       }
@@ -29,17 +31,9 @@ function getErrorMessage(error: unknown): string | null {
   return error instanceof Error ? error.message : null;
 }
 
-function getGoogleErrorMessage(code: string | null): string | null {
+function getGoogleErrorMessage(code: string | null, copy: AuthCopy): string | null {
   if (!code) return null;
-  const map: Record<string, string> = {
-    google_not_configured: "Google login is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.",
-    google_invalid_state: "Google sign-in security check failed. Please try again.",
-    google_token_failed: "Google sign-in token exchange failed. Please try again.",
-    google_token_missing: "Google sign-in token missing. Please try again.",
-    google_userinfo_failed: "Could not fetch your Google profile.",
-    google_email_missing: "Google account email is required.",
-  };
-  return map[code] || "Google sign-in failed.";
+  return copy.googleErrors[code as keyof typeof copy.googleErrors] || copy.googleFailed;
 }
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -98,49 +92,78 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 export default function LoginPage() {
-  const { isAuthenticated, isLoading } = useAuth();
   const loginMutation = useLoginMutation();
   const router = useRouter();
+  const { copy } = useLanguageCopy();
+  const authCopy = copy.auth;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dismissGoogleError, setDismissGoogleError] = useState(false);
+  const [allowCredentialFill, setAllowCredentialFill] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const errorMessage = useMemo(
-    () => getErrorMessage(loginMutation.error),
-    [loginMutation.error],
+    () => getErrorMessage(loginMutation.error, authCopy),
+    [authCopy, loginMutation.error],
   );
 
   const handleGoogleSignIn = () => {
     const next = new URLSearchParams(window.location.search).get("next") || "/dashboard";
-    window.location.href = `${window.location.origin}${getGoogleRedirectUrl()}?next=${encodeURIComponent(next)}`;
+    window.location.assign(getGoogleRedirectUrl(next));
   };
   const googleError = useMemo(() => {
+    if (dismissGoogleError) return null;
     if (typeof window === "undefined") return null;
     const code = new URLSearchParams(window.location.search).get("error");
-    return getGoogleErrorMessage(code);
-  }, []);
+    return getGoogleErrorMessage(code, authCopy);
+  }, [authCopy, dismissGoogleError]);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.replace("/dashboard");
-    }
-  }, [isAuthenticated, isLoading, router]);
+    const clearBrowserAutofill = () => {
+      setEmail("");
+      setPassword("");
+      if (emailRef.current) emailRef.current.value = "";
+      if (passwordRef.current) passwordRef.current.value = "";
+    };
+
+    clearBrowserAutofill();
+    const timeouts = [50, 150, 400, 900].map((delay) =>
+      window.setTimeout(clearBrowserAutofill, delay),
+    );
+    const onPageShow = () => clearBrowserAutofill();
+    window.addEventListener("pageshow", onPageShow);
+
+    return () => {
+      timeouts.forEach((timeout) => window.clearTimeout(timeout));
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, []);
+
+  const enableCredentialFill = () => {
+    setAllowCredentialFill(true);
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) {
-      setError("Email is required");
+    setDismissGoogleError(true);
+    const submittedEmail = (email || emailRef.current?.value || "").trim();
+    const submittedPassword = password || passwordRef.current?.value || "";
+
+    if (!submittedEmail) {
+      setError(authCopy.validationEmailRequired);
       return;
     }
-    if (!password) {
-      setError("Password is required");
+    if (!submittedPassword) {
+      setError(authCopy.validationPasswordRequired);
       return;
     }
     setError(null);
     try {
-      await loginMutation.mutateAsync({ email: email.trim(), password });
+      await loginMutation.mutateAsync({ email: submittedEmail, password: submittedPassword });
       const next = new URLSearchParams(window.location.search).get("next");
       router.replace(next || "/dashboard");
     } catch {
@@ -149,70 +172,79 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-6">
+    <main className="ken-auth-shell flex items-center justify-center p-6">
       <div className="ken-glass w-full max-w-[520px] min-h-[640px] rounded-[18px] px-8 py-9 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
         <div className="flex flex-col items-center">
           <div className="ken-wordmark text-2xl">KEN</div>
-          <div className="mt-4 text-3xl font-semibold text-white">Welcome</div>
+          <div className="mt-4 text-3xl font-semibold text-white">{authCopy.welcome}</div>
           <div className="mt-4 text-center text-sm text-slate-300">
-            Log in to KEN to continue.
+            {authCopy.loginToContinue}
           </div>
         </div>
 
-        <form onSubmit={onSubmit} className="mt-7 space-y-4">
+        <form onSubmit={onSubmit} autoComplete="on" className="mt-7 space-y-4">
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-slate-200">
-              Email address <span className="text-rose-600">*</span>
+              {authCopy.emailAddress} <span className="text-rose-600">*</span>
             </label>
             <input
+              ref={emailRef}
+              name="email"
               value={email}
+              readOnly={!allowCredentialFill}
+              onPointerDown={enableCredentialFill}
+              onFocus={enableCredentialFill}
               onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              placeholder="Email address"
+              autoComplete="username"
+              placeholder={authCopy.emailAddress}
               className="w-full rounded-[12px] border border-white/20 bg-[#dbe7ff] px-4 py-3 text-[15px] text-black outline-none focus:border-[#6b6ee6] focus:ring-2 focus:ring-[rgba(107,110,230,0.25)]"
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-slate-200">
-              Password <span className="text-rose-600">*</span>
+              {authCopy.password} <span className="text-rose-600">*</span>
             </label>
             <div className="relative">
               <input
+                ref={passwordRef}
+                name="password"
                 value={password}
+                readOnly={!allowCredentialFill}
+                onPointerDown={enableCredentialFill}
+                onFocus={enableCredentialFill}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 type={showPass ? "text" : "password"}
-                placeholder="Password"
+                placeholder={authCopy.password}
                 className="w-full rounded-[12px] border border-white/20 bg-[#dbe7ff] px-4 py-3 pr-12 text-[15px] text-black outline-none focus:border-[#6b6ee6] focus:ring-2 focus:ring-[rgba(107,110,230,0.25)]"
               />
               <button
                 type="button"
                 onClick={() => setShowPass((p) => !p)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 hover:bg-slate-100"
-                aria-label={showPass ? "Hide password" : "Show password"}
+                aria-label={showPass ? authCopy.hidePassword : authCopy.showPassword}
               >
                 <EyeIcon open={showPass} />
               </button>
             </div>
           </div>
 
-          <button
-            type="button"
+          <Link
+            href="/forgot-password"
             className="text-sm font-semibold text-cyan-200 hover:underline"
-            onClick={() => alert("Forgot password: implement later")}
           >
-            Forgot password?
-          </button>
+            {authCopy.forgotPassword}
+          </Link>
 
           {googleError ? (
-            <div className="rounded-[10px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            <div className="ken-auth-alert rounded-[10px] px-4 py-3 text-sm">
               {googleError}
             </div>
           ) : null}
 
           {(error || errorMessage) ? (
-            <div className="rounded-[10px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="ken-auth-alert rounded-[10px] px-4 py-3 text-sm">
               {error || errorMessage}
             </div>
           ) : null}
@@ -222,19 +254,19 @@ export default function LoginPage() {
             disabled={loginMutation.isPending}
             className="w-full rounded-[12px] bg-[#6b6ee6] py-3 text-[15px] font-semibold text-white hover:brightness-110 disabled:opacity-60"
           >
-            {loginMutation.isPending ? "Signing in..." : "Continue"}
+            {loginMutation.isPending ? authCopy.signIn : authCopy.continue}
           </button>
 
           <div className="pt-2 text-center text-sm text-slate-300">
-            Don&apos;t have an account?{" "}
+            {authCopy.dontHaveAccount}{" "}
             <Link href="/register" className="font-semibold text-cyan-200 hover:underline">
-              Sign up
+              {authCopy.signUp}
             </Link>
           </div>
 
           <div className="flex items-center gap-3 pt-2">
             <div className="h-px flex-1 bg-slate-200" />
-            <div className="text-xs font-semibold text-slate-500">OR</div>
+            <div className="text-xs font-semibold text-slate-500">{authCopy.or}</div>
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
@@ -263,10 +295,10 @@ export default function LoginPage() {
                 />
               </svg>
             </span>
-            Continue with Google
+            {authCopy.continueWithGoogle}
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

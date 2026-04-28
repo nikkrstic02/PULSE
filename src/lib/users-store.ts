@@ -1,5 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
+import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
+import { getDb } from "./db";
 
 export type StoredUser = {
   id: number;
@@ -9,101 +9,94 @@ export type StoredUser = {
   createdAt: string;
 };
 
-type UsersDb = {
-  users: StoredUser[];
+type UserRow = RowDataPacket & {
+  id: number | string | bigint;
+  email: string;
+  password: string | null;
+  created_at: Date | string | null;
 };
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DB_FILE = path.join(DATA_DIR, "users.json");
+function toStoredUser(row: UserRow): StoredUser {
+  const passwordHash = row.password || null;
+  const createdAt =
+    row.created_at instanceof Date
+      ? row.created_at.toISOString()
+      : row.created_at || new Date().toISOString();
 
-let writeLock: Promise<void> = Promise.resolve();
-
-async function ensureDbFile() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  try {
-    await fs.access(DB_FILE);
-  } catch {
-    const init: UsersDb = { users: [] };
-    await fs.writeFile(DB_FILE, JSON.stringify(init, null, 2), "utf8");
-  }
-}
-
-async function readDb(): Promise<UsersDb> {
-  await ensureDbFile();
-  const raw = await fs.readFile(DB_FILE, "utf8");
-  return JSON.parse(raw) as UsersDb;
-}
-
-async function writeDb(db: UsersDb) {
-  await fs.writeFile(DB_FILE, JSON.stringify(db, null, 2), "utf8");
-}
-
-async function withWriteLock<T>(fn: () => Promise<T>): Promise<T> {
-  const prev = writeLock;
-  let release!: () => void;
-  writeLock = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-
-  await prev;
-  try {
-    return await fn();
-  } finally {
-    release();
-  }
+  return {
+    id: Number(row.id),
+    email: row.email,
+    passwordHash,
+    provider: passwordHash ? "local" : "google",
+    createdAt,
+  };
 }
 
 export async function findUserByEmail(email: string): Promise<StoredUser | null> {
-  const db = await readDb();
-  const user = db.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-  return user ?? null;
+  const [rows] = await getDb().execute<UserRow[]>(
+    "SELECT id, email, password, created_at FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1",
+    [email],
+  );
+
+  return rows[0] ? toStoredUser(rows[0]) : null;
 }
 
 export async function findUserById(id: number): Promise<StoredUser | null> {
-  const db = await readDb();
-  const user = db.users.find((u) => u.id === id);
-  return user ?? null;
+  const [rows] = await getDb().execute<UserRow[]>(
+    "SELECT id, email, password, created_at FROM users WHERE id = ? LIMIT 1",
+    [id],
+  );
+
+  return rows[0] ? toStoredUser(rows[0]) : null;
+}
+
+export async function updateUserPasswordByEmail(
+  email: string,
+  passwordHash: string,
+): Promise<StoredUser | null> {
+  const existing = await findUserByEmail(email);
+  if (!existing) return null;
+
+  await getDb().execute(
+    "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+    [passwordHash, existing.id],
+  );
+
+  return findUserById(existing.id);
 }
 
 export async function createLocalUser(email: string, passwordHash: string): Promise<StoredUser> {
-  return withWriteLock(async () => {
-    const db = await readDb();
-    const exists = db.users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (exists) {
-      throw new Error("EMAIL_EXISTS");
-    }
+  const existing = await findUserByEmail(email);
+  if (existing) {
+    throw new Error("EMAIL_EXISTS");
+  }
 
-    const nextId = db.users.length > 0 ? Math.max(...db.users.map((u) => u.id)) + 1 : 1;
-    const user: StoredUser = {
-      id: nextId,
-      email,
-      passwordHash,
-      provider: "local",
-      createdAt: new Date().toISOString(),
-    };
+  const [result] = await getDb().execute<ResultSetHeader>(
+    "INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+    [email, passwordHash],
+  );
 
-    db.users.push(user);
-    await writeDb(db);
-    return user;
-  });
+  const user = await findUserById(result.insertId);
+  if (!user) {
+    throw new Error("USER_CREATE_FAILED");
+  }
+
+  return user;
 }
 
 export async function findOrCreateGoogleUser(email: string): Promise<StoredUser> {
-  return withWriteLock(async () => {
-    const db = await readDb();
-    const existing = db.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (existing) return existing;
+  const existing = await findUserByEmail(email);
+  if (existing) return existing;
 
-    const nextId = db.users.length > 0 ? Math.max(...db.users.map((u) => u.id)) + 1 : 1;
-    const user: StoredUser = {
-      id: nextId,
-      email,
-      passwordHash: null,
-      provider: "google",
-      createdAt: new Date().toISOString(),
-    };
-    db.users.push(user);
-    await writeDb(db);
-    return user;
-  });
+  const [result] = await getDb().execute<ResultSetHeader>(
+    "INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+    [email, ""],
+  );
+
+  const user = await findUserById(result.insertId);
+  if (!user) {
+    throw new Error("USER_CREATE_FAILED");
+  }
+
+  return user;
 }

@@ -6,14 +6,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getGoogleRedirectUrl, register } from "@/features/auth/api/auth.api";
+import { useLanguageCopy } from "@/lib/i18n";
 
-function getRegisterError(error: unknown): string {
+type AuthCopy = ReturnType<typeof useLanguageCopy>["copy"]["auth"];
+
+function getRegisterError(error: unknown, copy: AuthCopy): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as Record<string, unknown> | undefined;
     const status = error.response?.status;
 
     if (status && status >= 500) {
-      return "Authentication service is unavailable right now. Please try again.";
+      return copy.serviceUnavailable;
     }
 
     if (typeof data?.message === "string") return data.message;
@@ -24,14 +27,16 @@ function getRegisterError(error: unknown): string {
       if (flat.length) return String(flat[0]);
     }
 
-    return error.message || "Registration failed";
+    return error.message || copy.registerFailed;
   }
 
-  return error instanceof Error ? error.message : "Registration failed";
+  return error instanceof Error ? error.message : copy.registerFailed;
 }
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { copy } = useLanguageCopy();
+  const authCopy = copy.auth;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,14 +57,14 @@ export default function RegisterPage() {
 
       router.replace("/dashboard");
     } catch (err) {
-      setError(getRegisterError(err));
+      setError(getRegisterError(err, authCopy));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-6">
+    <main className="ken-auth-shell flex items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
@@ -70,32 +75,32 @@ export default function RegisterPage() {
           <div className="ken-wordmark text-2xl">KEN</div>
 
           <div className="mt-4 text-3xl font-semibold text-white">
-            Welcome
+            {authCopy.welcome}
           </div>
 
           <div className="mt-4 text-center text-sm text-slate-300">
-            Create your account
+            {authCopy.createAccount}
           </div>
         </div>
 
         <form onSubmit={onSubmit} className="mt-7 space-y-4">
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-slate-200">
-              Email address <span className="text-rose-600">*</span>
+              {authCopy.emailAddress} <span className="text-rose-600">*</span>
             </label>
 
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              placeholder="Email address"
+              placeholder={authCopy.emailAddress}
               className="w-full rounded-[12px] border border-white/20 bg-[#dbe7ff] px-4 py-3 text-[15px] text-black outline-none focus:border-[#6b6ee6] focus:ring-2 focus:ring-[rgba(107,110,230,0.25)]"
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-slate-200">
-              Password <span className="text-rose-600">*</span>
+              {authCopy.password} <span className="text-rose-600">*</span>
             </label>
 
             <input
@@ -103,13 +108,13 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
               type="password"
-              placeholder="Password"
+              placeholder={authCopy.password}
               className="w-full rounded-[12px] border border-white/20 bg-[#dbe7ff] px-4 py-3 text-[15px] text-black outline-none focus:border-[#6b6ee6] focus:ring-2 focus:ring-[rgba(107,110,230,0.25)]"
             />
           </div>
 
           {error ? (
-            <div className="rounded-[10px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="ken-auth-alert rounded-[10px] px-4 py-3 text-sm">
               {error}
             </div>
           ) : null}
@@ -119,29 +124,29 @@ export default function RegisterPage() {
             disabled={submitting}
             className="w-full rounded-[12px] bg-[#6b6ee6] py-3 text-[15px] font-semibold text-white hover:brightness-110 disabled:opacity-60"
           >
-            {submitting ? "Creating..." : "Continue"}
+            {submitting ? authCopy.creating : authCopy.continue}
           </button>
 
           <div className="pt-2 text-center text-sm text-slate-300">
-            Already registered?{" "}
+            {authCopy.alreadyRegistered}{" "}
             <Link
               href="/login"
               className="font-semibold text-cyan-200 hover:underline"
             >
-              Log in
+              {authCopy.login}
             </Link>
           </div>
 
           <div className="flex items-center gap-3 pt-2">
             <div className="h-px flex-1 bg-slate-200" />
-            <div className="text-xs font-semibold text-slate-500">OR</div>
+            <div className="text-xs font-semibold text-slate-500">{authCopy.or}</div>
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
           <button
             type="button"
             onClick={() => {
-              window.location.href = getGoogleRedirectUrl();
+              window.location.assign(getGoogleRedirectUrl("/dashboard"));
             }}
             className="flex w-full items-center justify-center gap-3 rounded-[12px] border border-slate-300 bg-white py-3 text-[15px] font-semibold text-slate-700 hover:bg-slate-50"
           >
@@ -166,10 +171,10 @@ export default function RegisterPage() {
               </svg>
             </span>
 
-            Continue with Google
+            {authCopy.continueWithGoogle}
           </button>
         </form>
       </motion.div>
-    </div>
+    </main>
   );
 }

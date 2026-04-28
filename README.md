@@ -7,6 +7,7 @@ KEN now runs fully inside Next.js (frontend + auth API in one project).
 - `GET /sanctum/csrf-cookie`
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
+- `POST /api/v1/auth/forgot-password` (on-site password change)
 - `GET /api/v1/auth/me`
 - `POST /api/v1/auth/logout`
 - `GET /api/v1/auth/google/redirect`
@@ -18,6 +19,7 @@ KEN now runs fully inside Next.js (frontend + auth API in one project).
    - `cp .env.local.example .env.local`
 2. Set required values in `.env.local`:
    - `NEXT_PUBLIC_APP_URL=http://localhost:3000`
+   - `DATABASE_URL=mysql://root:@localhost:3306/ken`
    - `AUTH_SECRET=<long-random-secret>`
 3. For Google login, add:
    - `GOOGLE_CLIENT_ID=...`
