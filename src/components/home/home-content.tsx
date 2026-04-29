@@ -1,54 +1,228 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Rocket, ShieldCheck, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  BadgeDollarSign,
+  CheckCircle2,
+  Clapperboard,
+  Flame,
+  LayoutGrid,
+  ListChecks,
+  NotebookPen,
+  Plane,
+  Sparkles,
+} from "lucide-react";
 import { useLanguageCopy } from "@/lib/i18n";
+
+const moduleIcons = [
+  ListChecks,
+  CheckCircle2,
+  BadgeDollarSign,
+  NotebookPen,
+  Flame,
+  Plane,
+  Clapperboard,
+] as const;
+
+const accentClasses = [
+  "from-sky-300/25 to-emerald-300/10 text-sky-100",
+  "from-emerald-300/25 to-sky-300/10 text-emerald-100",
+  "from-amber-300/25 to-orange-300/10 text-amber-100",
+  "from-rose-300/25 to-violet-300/10 text-rose-100",
+  "from-orange-300/25 to-amber-300/10 text-orange-100",
+  "from-teal-300/25 to-emerald-300/10 text-teal-100",
+  "from-violet-300/25 to-sky-300/10 text-violet-100",
+] as const;
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export function HomeContent() {
   const { copy } = useLanguageCopy();
+  const home = copy.home;
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="ken-glass w-full max-w-3xl rounded-3xl p-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.35)]">
-        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/30 bg-cyan-200/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100">
-          <Sparkles size={14} />
-          {copy.home.welcome}
-        </div>
-        <h1 className="mt-5 text-5xl font-black tracking-tight">{copy.home.title}</h1>
-        <div className="ken-wordmark mt-3 text-sm">KEN</div>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-300">
-          {copy.home.subtitle}
-        </p>
-        <div className="mx-auto mt-7 grid max-w-2xl gap-3 text-left md:grid-cols-3">
-          <div className="ken-hover-lift rounded-xl border border-white/10 bg-white/5 p-4">
-            <Rocket size={16} className="text-cyan-200" />
-            <p className="mt-2 text-sm text-slate-200">{copy.home.stats.fast}</p>
-          </div>
-          <div className="ken-hover-lift rounded-xl border border-white/10 bg-white/5 p-4">
-            <ShieldCheck size={16} className="text-cyan-200" />
-            <p className="mt-2 text-sm text-slate-200">{copy.home.stats.secure}</p>
-          </div>
-          <div className="ken-hover-lift rounded-xl border border-white/10 bg-white/5 p-4">
-            <Sparkles size={16} className="text-cyan-200" />
-            <p className="mt-2 text-sm text-slate-200">{copy.home.stats.premium}</p>
-          </div>
-        </div>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#6b6ee6] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+    <main className="min-h-screen overflow-hidden px-5 py-8 sm:px-8 lg:px-10">
+      <section className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col items-center justify-center text-center">
+        <motion.div
+          aria-hidden
+          animate={{ rotate: 360, scale: [1, 1.08, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-[conic-gradient(from_180deg,rgba(52,211,153,0.24),rgba(56,189,248,0.18),rgba(251,191,36,0.16),rgba(52,211,153,0.24))] opacity-60 blur-sm"
+        />
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="relative z-10"
+        >
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
           >
-            {copy.home.login}
-            <ArrowRight size={14} />
-          </Link>
+            <Link
+              href="/"
+              className="ken-wordmark inline-block text-7xl font-black sm:text-8xl lg:text-9xl"
+            >
+              KEN
+            </Link>
+          </motion.div>
+
+          <div className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-100 backdrop-blur">
+            <Sparkles size={14} />
+            {home.welcome}
+          </div>
+
+          <h1 className="mx-auto mt-7 max-w-4xl text-3xl font-black leading-tight text-white sm:text-5xl">
+            <span className="ken-typing ken-typing-title">{home.title}</span>
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, delay: 2.05, ease: "easeOut" }}
+            className="mx-auto mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg"
+          >
+            {home.subtitle}
+          </motion.p>
+
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 shadow-[0_18px_50px_rgba(52,211,153,0.22)] transition hover:bg-emerald-300"
+            >
+              {home.register}
+              <ArrowRight size={16} />
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+            >
+              {home.login}
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl py-20">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+          transition={{ duration: 0.55 }}
+          className="mx-auto max-w-2xl text-center"
+        >
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-emerald-100">
+            <LayoutGrid size={24} />
+          </div>
+          <h2 className="text-3xl font-black text-white sm:text-4xl">
+            {home.offerTitle}
+          </h2>
+          <p className="mt-4 text-base leading-7 text-slate-300">{home.offerText}</p>
+        </motion.div>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          {home.stats.map((item, index) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.45 }}
+              transition={{ duration: 0.45, delay: index * 0.08 }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="ken-home-stat rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
+            >
+              <div className="text-sm font-black text-white">{item.title}</div>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{item.text}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl pb-24">
+        <div className="space-y-8">
+          {home.modules.map((module, index) => {
+            const Icon = moduleIcons[index % moduleIcons.length];
+            const isRight = index % 2 === 1;
+
+            return (
+              <motion.div
+                key={module.title}
+                initial={{ opacity: 0, y: 34, scale: 0.94, rotateX: 8 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+                className={["flex", isRight ? "justify-end" : "justify-start"].join(" ")}
+              >
+                <motion.div
+                  whileHover={{ y: -8, scale: 1.015 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  className={[
+                    "ken-feature-card ken-glass w-full max-w-3xl rounded-3xl p-5 shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:p-6",
+                    isRight ? "md:text-right" : "md:text-left",
+                  ].join(" ")}
+                >
+                  <div
+                    className={[
+                      "flex flex-col gap-5 sm:flex-row sm:items-center",
+                      isRight ? "sm:flex-row-reverse" : "",
+                    ].join(" ")}
+                  >
+                    <motion.div
+                      whileHover={{ rotate: [0, -6, 6, 0], scale: 1.08 }}
+                      transition={{
+                        duration: 0.45,
+                        ease: "easeOut",
+                      }}
+                      className={`ken-feature-icon flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-white/10 bg-gradient-to-br ${accentClasses[index % accentClasses.length]}`}
+                    >
+                      <Icon size={34} />
+                    </motion.div>
+
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                        {module.count}
+                      </div>
+                      <h3 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                        {module.title}
+                      </h3>
+                      <p className="mt-3 max-w-xl text-sm leading-7 text-slate-300">
+                        {module.text}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.55 }}
+          className="ken-home-stat mx-auto mt-14 flex max-w-3xl flex-col items-center justify-between gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 text-center shadow-[0_20px_50px_rgba(0,0,0,0.18)] sm:flex-row sm:text-left"
+        >
+          <div>
+            <div className="text-lg font-black text-white">{home.ctaTitle}</div>
+          </div>
           <Link
             href="/register"
-            className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-100"
           >
-            {copy.home.register}
+            {home.register}
+            <ArrowRight size={16} />
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </section>
     </main>
   );
 }

@@ -34,7 +34,7 @@ export function Sidebar() {
   const modulesCopy = copy.modules as Record<NavLabelKey, string>;
 
   return (
-    <aside className="w-72 border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] p-4">
+    <aside className="ken-sidebar w-72 border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] p-4">
       <div className="mb-8 flex h-16 items-center justify-center px-2">
         <Link href="/dashboard" className="ken-wordmark text-2xl">
           KEN
@@ -53,13 +53,14 @@ export function Sidebar() {
                 whileHover={{ x: 2, scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 520, damping: 22, duration: 0.12 }}
                 className={[
+                  "ken-sidebar-link",
                   "flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors duration-150",
                   isActive
-                    ? "border-emerald-400/70 bg-emerald-500/25 text-white"
+                    ? "ken-sidebar-active border-emerald-300/90 bg-emerald-500/40 text-white"
                     : "border-white/10 bg-white/5 text-slate-300 hover:border-emerald-300/50 hover:bg-emerald-400/10 hover:text-white",
                 ].join(" ")}
               >
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-xs text-slate-200">
+                <span className="ken-sidebar-icon inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-xs text-slate-200">
                   <Icon size={14} />
                 </span>
                 <span>{modulesCopy[item.labelKey]}</span>

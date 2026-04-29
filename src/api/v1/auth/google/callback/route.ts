@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Clean up state cookie
   (await cookies()).delete("oauth_state");
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -39,23 +38,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Exchange code for token
-    const tokenResponse = await fetch(
-      "https://oauth2.googleapis.com/token",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
-          code,
-          grant_type: "authorization_code",
-          redirect_uri: redirectUri,
-        }),
-      }
-    );
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        grant_type: "authorization_code",
+        redirect_uri: redirectUri,
+      }),
+    });
 
     if (!tokenResponse.ok) {
       return NextResponse.redirect(
@@ -72,7 +67,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user info
     const userResponse = await fetch(
       "https://www.googleapis.com/oauth2/v2/userinfo",
       {
@@ -97,17 +91,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Now, we need to authenticate the user in our app
-    // Since this is a demo, we'll assume the user exists or create them
-    // In a real app, you'd check if the user exists by email, and if not, create them
-
-    // For now, let's try to login with a dummy password or handle it in the backend
-    // Actually, since the backend might not support Google auth directly,
-    // we'll redirect to dashboard with a success param, and let the frontend handle it
-
-    return NextResponse.redirect(
-      new URL("/?google=success", baseUrl)
-    );
+    return NextResponse.redirect(new URL("/?google=success", baseUrl));
   } catch (err) {
     console.error("Google OAuth error:", err);
     return NextResponse.redirect(

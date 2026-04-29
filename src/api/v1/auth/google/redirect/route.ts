@@ -27,7 +27,7 @@ export async function GET() {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 300, // 5 minutes
+    maxAge: 300,
   });
 
   return response;

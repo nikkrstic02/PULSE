@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getGoogleRedirectUrl } from "@/features/auth/api/auth.api";
 import { useLoginMutation } from "@/features/auth/queries/use-login-mutation";
 import { useLanguageCopy } from "@/lib/i18n";
+import { getSafeNextPath } from "@/lib/oauth";
 
 type AuthCopy = ReturnType<typeof useLanguageCopy>["copy"]["auth"];
 
@@ -165,7 +166,7 @@ export default function LoginPage() {
     try {
       await loginMutation.mutateAsync({ email: submittedEmail, password: submittedPassword });
       const next = new URLSearchParams(window.location.search).get("next");
-      router.replace(next || "/dashboard");
+      router.replace(getSafeNextPath(next));
     } catch {
       // handled by error state
     }

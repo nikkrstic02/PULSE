@@ -11,7 +11,12 @@ type AuthCopy = ReturnType<typeof useLanguageCopy>["copy"]["auth"];
 function getForgotPasswordError(error: unknown, copy: AuthCopy): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as Record<string, unknown> | undefined;
-    if (typeof data?.message === "string") return data.message;
+    if (typeof data?.message === "string") {
+      if (data.message.includes("same as your old password")) {
+        return copy.newPasswordSameAsOld;
+      }
+      return data.message;
+    }
     return error.message || copy.passwordResetFailed;
   }
 

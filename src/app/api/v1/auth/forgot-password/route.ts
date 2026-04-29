@@ -1,8 +1,10 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth-server";
 import { findUserByEmail, updateUserPasswordByEmail } from "@/lib/users-store";
 
 const RESET_DONE_MESSAGE = "Your password has been changed. You can now log in.";
+const SAME_PASSWORD_MESSAGE = "New password can't be the same as your old password.";
 
 function isEmail(value: string) {
   return /\S+@\S+\.\S+/.test(value);
@@ -10,6 +12,7 @@ function isEmail(value: string) {
 
 export async function POST(req: Request) {
   try {
+    const currentUser = await getCurrentUser();
     const body = (await req.json()) as {
       email?: string;
       password?: string;
@@ -29,6 +32,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Password confirmation does not match." }, { status: 422 });
     }
 
+    if (currentUser) {
+      if (email !== currentUser.email.toLowerCase()) {
+        return NextResponse.json(
+          { message: "You can only change the password for your signed-in account." },
+          { status: 403 },
+        );
+      }
+
+      if (!currentUser.passwordHash) {
+        return NextResponse.json(
+          { message: "This account uses Google sign-in. Use Google to log in." },
+          { status: 422 },
+        );
+      }
+
+      const isSamePassword = await bcrypt.compare(password, currentUser.passwordHash);
+      if (isSamePassword) {
+        return NextResponse.json({ message: SAME_PASSWORD_MESSAGE }, { status: 422 });
+      }
+
+      const hash = await bcrypt.hash(password, 10);
+      await updateUserPasswordByEmail(currentUser.email, hash);
+
+      return NextResponse.json({
+        message: RESET_DONE_MESSAGE,
+      });
+    }
+
     const user = await findUserByEmail(email);
     if (!user) {
       return NextResponse.json({ message: "No account exists with that email." }, { status: 404 });
@@ -41,8 +72,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const isSamePassword = await bcrypt.compare(password, user.passwordHash);
+    if (isSamePassword) {
+      return NextResponse.json({ message: SAME_PASSWORD_MESSAGE }, { status: 422 });
+    }
+
     const hash = await bcrypt.hash(password, 10);
-    await updateUserPasswordByEmail(email, hash);
+    await updateUserPasswordByEmail(user.email, hash);
 
     return NextResponse.json({
       message: RESET_DONE_MESSAGE,
