@@ -62,13 +62,10 @@ export function HomeContent() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="relative z-10"
         >
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-          >
+          <motion.div>
             <Link
               href="/"
-              className="ken-wordmark inline-block text-7xl font-black sm:text-8xl lg:text-9xl"
+              className="ken-wordmark ken-wordmark-glow inline-block text-7xl font-black sm:text-8xl lg:text-9xl"
             >
               KEN
             </Link>
@@ -80,13 +77,13 @@ export function HomeContent() {
           </div>
 
           <h1 className="mx-auto mt-7 max-w-4xl text-3xl font-black leading-tight text-white sm:text-5xl">
-            <span className="ken-typing ken-typing-title">{home.title}</span>
+            <span className="ken-headline-reveal">{home.title}</span>
           </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.55, delay: 2.05, ease: "easeOut" }}
+            transition={{ duration: 0.6, delay: 0.78, ease: [0.22, 1, 0.36, 1] }}
             className="mx-auto mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg"
           >
             {home.subtitle}
@@ -95,16 +92,16 @@ export function HomeContent() {
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 shadow-[0_18px_50px_rgba(52,211,153,0.22)] transition hover:bg-emerald-300"
+              className="ken-action-button ken-action-primary inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 shadow-[0_18px_50px_rgba(52,211,153,0.22)] transition hover:bg-emerald-300"
             >
-              {home.register}
-              <ArrowRight size={16} />
+              <span>{home.register}</span>
+              <ArrowRight className="ken-button-icon" size={16} />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+              className="ken-action-button ken-action-ghost inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
             >
-              {home.login}
+              <span>{home.login}</span>
             </Link>
           </div>
         </motion.div>
@@ -133,11 +130,16 @@ export function HomeContent() {
             <motion.div
               key={item.title}
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              whileInView={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                transition: { duration: 0.45, delay: index * 0.08 },
+              }}
               viewport={{ once: true, amount: 0.45 }}
-              transition={{ duration: 0.45, delay: index * 0.08 }}
               whileHover={{ y: -6, scale: 1.02 }}
-              className="ken-home-stat rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
+              transition={{ type: "spring", stiffness: 260, damping: 24 }}
+              className="ken-home-stat ken-stat-card rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
             >
               <div className="text-sm font-black text-white">{item.title}</div>
               <p className="mt-2 text-sm leading-6 text-slate-400">{item.text}</p>
@@ -165,7 +167,7 @@ export function HomeContent() {
                   whileHover={{ y: -8, scale: 1.015 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
                   className={[
-                    "ken-feature-card ken-glass w-full max-w-3xl rounded-3xl p-5 shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:p-6",
+                    "ken-feature-card ken-edge-card ken-glass w-full max-w-3xl rounded-3xl p-5 shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:p-6",
                     isRight ? "md:text-right" : "md:text-left",
                   ].join(" ")}
                 >
@@ -176,10 +178,11 @@ export function HomeContent() {
                     ].join(" ")}
                   >
                     <motion.div
-                      whileHover={{ rotate: [0, -6, 6, 0], scale: 1.08 }}
+                      whileHover={{ y: -4, scale: 1.08 }}
                       transition={{
-                        duration: 0.45,
-                        ease: "easeOut",
+                        type: "spring",
+                        stiffness: 360,
+                        damping: 16,
                       }}
                       className={`ken-feature-icon flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-white/10 bg-gradient-to-br ${accentClasses[index % accentClasses.length]}`}
                     >
@@ -216,10 +219,10 @@ export function HomeContent() {
           </div>
           <Link
             href="/register"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-100"
+            className="ken-action-button ken-action-light inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-100"
           >
-            {home.register}
-            <ArrowRight size={16} />
+            <span>{home.register}</span>
+            <ArrowRight className="ken-button-icon" size={16} />
           </Link>
         </motion.div>
       </section>

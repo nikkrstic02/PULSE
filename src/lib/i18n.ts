@@ -71,10 +71,9 @@ export const languageCopy = {
           title: "Plans",
         },
       },
-      openCommand: "Add something",
       platform: "KEN",
       signedInAs: "Signed in as",
-      welcomeBack: "Welcome back",
+      welcomeBack: "Welcome",
     },
     header: {
       login: "Login",
@@ -87,7 +86,6 @@ export const languageCopy = {
       toggleTheme: "Toggle theme",
     },
     home: {
-      captureInput: "Add: buy train tickets, save pasta recipe, pay internet bill...",
       login: "Log in",
       modules: [
         {
@@ -126,13 +124,6 @@ export const languageCopy = {
           title: "Watchlist",
         },
       ],
-      organizedItems: [
-        "Add anything fast",
-        "Find it later",
-        "Stay organized",
-      ],
-      organizedTitle: "Simple enough to use every day.",
-      ctaText: "Start with one thing today and keep adding as life happens.",
       ctaTitle: "Start keeping everything in one place.",
       offerText: "One app for the small things that usually end up scattered everywhere.",
       offerTitle: "What KEN offers",
@@ -233,10 +224,9 @@ export const languageCopy = {
           title: "Planovi",
         },
       },
-      openCommand: "Dodajte nešto",
       platform: "KEN",
       signedInAs: "Prijavljeni kao",
-      welcomeBack: "Dobrodošli nazad",
+      welcomeBack: "Dobrodošli",
     },
     header: {
       login: "Prijava",
@@ -249,7 +239,6 @@ export const languageCopy = {
       toggleTheme: "Promenite temu",
     },
     home: {
-      captureInput: "Dodaj: kupi karte za voz, sačuvaj recept, plati internet...",
       login: "Prijava",
       modules: [
         {
@@ -288,13 +277,6 @@ export const languageCopy = {
           title: "Videoteka",
         },
       ],
-      organizedItems: [
-        "Dodaj brzo",
-        "Nađi kasnije",
-        "Ostani organizovan",
-      ],
-      organizedTitle: "Dovoljno jednostavno za svaki dan.",
-      ctaText: "Kreni od jedne stvari danas i dodaj ostalo kada ti zatreba.",
       ctaTitle: "Počni da držiš sve na jednom mestu.",
       offerText: "Jedna aplikacija za sve male stvari koje se obično raspu na sve strane.",
       offerTitle: "Šta KEN nudi",
