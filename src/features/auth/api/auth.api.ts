@@ -75,8 +75,3 @@ export function getGoogleRedirectUrl(nextPath = "/dashboard"): string {
   return `/api/v1/auth/google/redirect?${params.toString()}`;
 }
 
-export async function googleLogin(code: string): Promise<User> {
-  await ensureCsrfCookie();
-  const res = await http.post("/api/v1/auth/google/login", { code });
-  return extractUser(res.data);
-}

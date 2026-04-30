@@ -24,6 +24,7 @@
 html,
 body {
   min-height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -504,6 +505,24 @@ body[data-theme="light"] .ken-headline-reveal {
   box-shadow: 0 18px 46px rgba(255, 255, 255, 0.2);
 }
 
+.ken-scroll-cue {
+  transition: color 0.22s ease;
+}
+
+.ken-scroll-cue:hover {
+  color: #d1fae5;
+}
+
+.ken-scroll-cue > * {
+  pointer-events: none;
+}
+
+.ken-scroll-cue svg {
+  margin-top: 1px;
+  opacity: 0.8;
+  animation: ken-scroll-cue 2.2s ease-in-out infinite;
+}
+
 .ken-stat-card {
   position: relative;
   isolation: isolate;
@@ -715,16 +734,93 @@ body[data-theme="light"] .ken-headline-reveal {
   }
 }
 
+@keyframes ken-scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ken-wordmark-glow,
   .ken-wordmark-glow::after,
-  .ken-headline-reveal {
+  .ken-headline-reveal,
+  .ken-scroll-cue svg {
     animation: none;
   }
 
   .ken-wordmark-glow::after {
     opacity: 0.9;
     transform: scaleX(1);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ken-wordmark-glow {
+    filter:
+      drop-shadow(0 12px 22px rgba(35, 213, 213, 0.14))
+      drop-shadow(0 24px 42px rgba(52, 211, 153, 0.08));
+  }
+
+  .ken-wordmark-glow::before {
+    opacity: 0.42;
+    filter: blur(18px);
+  }
+
+  .ken-wordmark-glow::after {
+    bottom: 4px;
+    height: 2px;
+    box-shadow: 0 0 10px rgba(45, 212, 191, 0.24);
+  }
+
+  .ken-headline-reveal {
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.22))
+      drop-shadow(0 12px 24px rgba(8, 13, 26, 0.22));
+  }
+
+  .ken-action-button:hover {
+    transform: none;
+  }
+
+  .ken-action-button:active {
+    transform: scale(0.98);
+  }
+
+  .ken-action-button::before,
+  .ken-action-button::after {
+    display: none;
+  }
+
+  .ken-stat-card {
+    will-change: auto;
+  }
+
+  .ken-stat-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  }
+
+  .ken-stat-card::before,
+  .ken-stat-card::after,
+  .ken-edge-card::before,
+  .ken-edge-card::after,
+  .ken-feature-icon::after {
+    display: none;
+  }
+
+  .ken-edge-card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 22px 58px rgba(0, 0, 0, 0.2);
+  }
+
+  .ken-edge-card:hover .ken-feature-icon {
+    filter: none;
+    box-shadow: none;
   }
 }
 

@@ -173,11 +173,11 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="ken-auth-shell flex items-center justify-center p-6">
-      <div className="ken-glass w-full max-w-[520px] min-h-[640px] rounded-[18px] px-8 py-9 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+    <main className="ken-auth-shell flex min-h-dvh items-center justify-center px-4 py-6 sm:p-6">
+      <div className="ken-glass w-full max-w-[520px] rounded-[18px] px-5 py-7 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:min-h-[640px] sm:px-8 sm:py-9">
         <div className="flex flex-col items-center">
           <div className="ken-wordmark text-2xl">KEN</div>
-          <div className="mt-4 text-3xl font-semibold text-white">{authCopy.welcome}</div>
+          <div className="mt-4 text-center text-2xl font-semibold text-white sm:text-3xl">{authCopy.welcome}</div>
           <div className="mt-4 text-center text-sm text-slate-300">
             {authCopy.loginToContinue}
           </div>
@@ -233,7 +233,7 @@ export default function LoginPage() {
 
           <Link
             href="/forgot-password"
-            className="text-sm font-semibold text-cyan-200 hover:underline"
+            className="inline-block text-sm font-semibold text-cyan-200 hover:underline"
           >
             {authCopy.forgotPassword}
           </Link>
@@ -274,7 +274,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            className="flex w-full items-center justify-center gap-3 rounded-[12px] border border-slate-300 bg-white py-3 text-[15px] font-semibold text-slate-700 hover:bg-slate-50"
+            className="flex w-full items-center justify-center gap-3 rounded-[12px] border border-slate-300 bg-white px-3 py-3 text-center text-[15px] font-semibold text-slate-700 hover:bg-slate-50"
           >
             <span className="inline-flex h-5 w-5 items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  ArrowDown,
   BadgeDollarSign,
   CheckCircle2,
   Clapperboard,
@@ -46,7 +47,7 @@ export function HomeContent() {
   const home = copy.home;
 
   return (
-    <main className="min-h-screen overflow-hidden px-5 py-8 sm:px-8 lg:px-10">
+    <main className="min-h-screen overflow-hidden px-4 py-6 sm:px-8 sm:py-8 lg:px-10">
       <section className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col items-center justify-center text-center">
         <motion.div
           aria-hidden
@@ -65,13 +66,13 @@ export function HomeContent() {
           <motion.div>
             <Link
               href="/"
-              className="ken-wordmark ken-wordmark-glow inline-block text-7xl font-black sm:text-8xl lg:text-9xl"
+              className="ken-wordmark ken-wordmark-glow inline-block text-6xl font-black sm:text-8xl lg:text-9xl"
             >
               KEN
             </Link>
           </motion.div>
 
-          <div className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-100 backdrop-blur">
+          <div className="mx-auto mt-6 flex w-fit max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-100 backdrop-blur sm:px-4 sm:text-xs sm:tracking-[0.18em]">
             <Sparkles size={14} />
             {home.welcome}
           </div>
@@ -89,17 +90,17 @@ export function HomeContent() {
             {home.subtitle}
           </motion.p>
 
-          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+          <div className="mx-auto mt-9 flex w-full max-w-sm flex-col justify-center gap-3 sm:max-w-none sm:flex-row">
             <Link
               href="/register"
-              className="ken-action-button ken-action-primary inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 shadow-[0_18px_50px_rgba(52,211,153,0.22)] transition hover:bg-emerald-300"
+              className="ken-action-button ken-action-primary inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 shadow-[0_18px_50px_rgba(52,211,153,0.22)] transition hover:bg-emerald-300 sm:w-auto"
             >
               <span>{home.register}</span>
               <ArrowRight className="ken-button-icon" size={16} />
             </Link>
             <Link
               href="/login"
-              className="ken-action-button ken-action-ghost inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+              className="ken-action-button ken-action-ghost inline-flex w-full items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10 sm:w-auto"
             >
               <span>{home.login}</span>
             </Link>
@@ -107,7 +108,24 @@ export function HomeContent() {
         </motion.div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl py-20">
+      <motion.button
+        type="button"
+        onClick={() => {
+          document.getElementById("ken-offers")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 1.05, ease: "easeOut" }}
+        className="ken-scroll-cue relative z-20 mx-auto -mt-14 mb-4 hidden w-fit cursor-pointer flex-col items-center gap-0 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-slate-400 transition md:flex"
+      >
+        <span>Scroll</span>
+        <ArrowDown size={23} strokeWidth={1.8} />
+      </motion.button>
+
+      <section id="ken-offers" className="mx-auto w-full max-w-7xl scroll-mt-8 py-14 sm:py-20">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -219,7 +237,7 @@ export function HomeContent() {
           </div>
           <Link
             href="/register"
-            className="ken-action-button ken-action-light inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-100"
+            className="ken-action-button ken-action-light inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-100 sm:w-auto"
           >
             <span>{home.register}</span>
             <ArrowRight className="ken-button-icon" size={16} />

@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#0a0f1a]/80">
-      <div className="mx-auto flex w-full max-w-7xl justify-between px-6 py-4 text-xs font-semibold text-slate-400">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-4 text-center text-xs font-semibold text-slate-400 sm:flex-row sm:justify-between sm:px-6 sm:text-left">
         <span>© 2026 KEN</span>
         <a
           href="mailto:support@ken.app"

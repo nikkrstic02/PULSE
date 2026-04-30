@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Moon, Search, Settings, Sparkles, Sun } from "lucide-react";
+import { LogOut, Menu, Moon, Search, Settings, Sparkles, Sun } from "lucide-react";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useLogoutMutation } from "@/features/auth/queries/use-logout-mutation";
 import { useLanguageCopy } from "@/lib/i18n";
@@ -23,7 +23,7 @@ function getServerTheme(): KenTheme {
   return "dark";
 }
 
-export function Header() {
+export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
   const logoutMutation = useLogoutMutation(() => router.replace("/"));
@@ -54,24 +54,33 @@ export function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="relative z-50 h-16 border-b border-white/10 bg-[#0a0f1a]/90 px-6 backdrop-blur">
-      <div className="mx-auto flex h-full w-full max-w-7xl items-center gap-4">
-        <div className="flex-1">
+    <header className="relative z-50 min-h-16 border-b border-white/10 bg-[#0a0f1a]/90 px-3 py-3 backdrop-blur sm:px-6">
+      <div className="mx-auto flex h-full w-full max-w-7xl items-center gap-2 sm:gap-4">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 lg:hidden"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+
+        <div className="min-w-0 flex-1">
           <label htmlFor="header-search" className="sr-only">
             {headerCopy.searchLabel}
           </label>
-          <div className="relative rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-cyan-300/40 focus-within:border-cyan-300/60">
-            <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+          <div className="relative rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition hover:border-cyan-300/40 focus-within:border-cyan-300/60 sm:px-4">
+            <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 sm:left-4" />
             <input
               id="header-search"
               type="search"
               placeholder={headerCopy.search}
-              className="w-full bg-transparent pl-11 text-sm text-white placeholder:text-slate-500 focus:outline-none"
+              className="w-full min-w-0 bg-transparent pl-9 text-sm text-white placeholder:text-slate-500 focus:outline-none sm:pl-11"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => {
