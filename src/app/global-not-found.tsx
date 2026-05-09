@@ -3,7 +3,7 @@ import { NotFoundContent } from "@/components/not-found-content";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Page Not Found - KEN",
+  title: "PULSE - Page Not Found",
   description: "The page you are looking for does not exist.",
 };
 

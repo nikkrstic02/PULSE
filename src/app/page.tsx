@@ -8,7 +8,7 @@ export default async function RootPage({
 }) {
   const { google } = await searchParams;
   if (google === "success") {
-    redirect("/dashboard?google=success");
+    redirect("/organize/dashboard?google=success");
   }
 
   return <HomeContent />;

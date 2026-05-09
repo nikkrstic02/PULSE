@@ -70,7 +70,7 @@ export async function requestPasswordReset(payload: ForgotPasswordPayload): Prom
   await http.post("/api/v1/auth/forgot-password", payload);
 }
 
-export function getGoogleRedirectUrl(nextPath = "/dashboard"): string {
+export function getGoogleRedirectUrl(nextPath = "/organize/dashboard"): string {
   const params = new URLSearchParams({ next: nextPath });
   return `/api/v1/auth/google/redirect?${params.toString()}`;
 }

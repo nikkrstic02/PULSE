@@ -10,39 +10,40 @@ import {
   Flame,
   LayoutDashboard,
   ListChecks,
+  Menu,
   NotebookPen,
   Plane,
   SquareCheckBig,
 } from "lucide-react";
 import { useLanguageCopy } from "@/lib/i18n";
+import { useMemo, useState } from "react";
 
-const nav = [
-  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
-  { href: "/lists", labelKey: "lists", icon: ListChecks },
-  { href: "/todos", labelKey: "todos", icon: SquareCheckBig },
-  { href: "/expenses", labelKey: "expenses", icon: BadgeDollarSign },
-  { href: "/recipes", labelKey: "recipes", icon: NotebookPen },
-  { href: "/calories", labelKey: "calories", icon: Flame },
-  { href: "/trips", labelKey: "trips", icon: Plane },
-  { href: "/movies", labelKey: "movies", icon: Clapperboard },
+const workNav = [
+  { href: "/organize/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+  { href: "/organize/lists", labelKey: "lists", icon: ListChecks },
+  { href: "/organize/todos", labelKey: "todos", icon: SquareCheckBig },
+  { href: "/organize/expenses", labelKey: "expenses", icon: BadgeDollarSign },
 ] as const;
 
-type NavLabelKey = (typeof nav)[number]["labelKey"];
+const lifeNav = [
+  { href: "/lifestyle/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+  { href: "/lifestyle/recipes", labelKey: "recipes", icon: NotebookPen },
+  { href: "/lifestyle/calories", labelKey: "calories", icon: Flame },
+  { href: "/lifestyle/trips", labelKey: "trips", icon: Plane },
+  { href: "/lifestyle/movies", labelKey: "movies", icon: Clapperboard },
+] as const;
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+type NavLabelKey = (typeof workNav)[number]["labelKey"] | (typeof lifeNav)[number]["labelKey"];
+
+function SidebarNav({ onNavigate, space = "organize", mobile = false, expanded = true }: { onNavigate?: () => void; space?: "organize" | "lifestyle"; mobile?: boolean; expanded?: boolean }) {
   const pathname = usePathname();
   const { copy } = useLanguageCopy();
   const modulesCopy = copy.modules as Record<NavLabelKey, string>;
+  const nav = space === "organize" ? workNav : lifeNav;
 
   return (
     <>
-      <div className="mb-8 flex h-16 items-center justify-center px-2">
-        <Link href="/dashboard" className="ken-wordmark text-2xl">
-          KEN
-        </Link>
-      </div>
-
-      <nav className="space-y-2">
+      <nav className="space-y-1 px-2">
         {nav.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -51,20 +52,20 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           return (
             <Link key={item.href} href={item.href} className="block" onClick={onNavigate}>
               <motion.div
-                whileHover={{ x: 2, scale: 1.01 }}
-                transition={{ type: "spring", stiffness: 520, damping: 22, duration: 0.12 }}
+                whileHover={{ x: 2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 24 }}
                 className={[
-                  "ken-sidebar-link",
-                  "flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors duration-150",
+                  "pulse-sidebar-link",
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors duration-150",
                   isActive
-                    ? "ken-sidebar-active border-emerald-300/90 bg-emerald-500/40 text-white"
-                    : "border-white/10 bg-white/5 text-slate-300 hover:border-emerald-300/50 hover:bg-emerald-400/10 hover:text-white",
+                    ? "pulse-sidebar-active bg-white/10 text-white border border-white/20"
+                    : "text-slate-400 hover:bg-white/5 hover:text-white",
                 ].join(" ")}
               >
-                <span className="ken-sidebar-icon inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-xs text-slate-200">
-                  <Icon size={14} />
+                <span className="pulse-sidebar-icon flex h-6 w-6 shrink-0 items-center justify-center">
+                  <Icon size={18} />
                 </span>
-                <span className="truncate">{modulesCopy[item.labelKey]}</span>
+                <span className={`truncate ${mobile || expanded ? "" : "hidden"}`}>{modulesCopy[item.labelKey]}</span>
               </motion.div>
             </Link>
           );
@@ -83,6 +84,12 @@ export function Sidebar({
   onClose?: () => void;
   open?: boolean;
 }) {
+  const pathname = usePathname();
+  const space = useMemo<"organize" | "lifestyle">(() => {
+    return pathname.startsWith("/lifestyle") ? "lifestyle" : "organize";
+  }, [pathname]);
+  const [expanded, setExpanded] = useState(false);
+
   if (mobile) {
     return (
       <AnimatePresence>
@@ -102,7 +109,7 @@ export function Sidebar({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 340, damping: 34 }}
-              className="ken-sidebar fixed left-0 top-0 z-[80] h-dvh w-[min(20rem,88vw)] overflow-y-auto border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] p-4 shadow-[24px_0_70px_rgba(0,0,0,0.35)] lg:hidden"
+              className="pulse-sidebar fixed left-0 top-0 z-[80] h-dvh w-[min(20rem,88vw)] overflow-y-auto border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] p-4 shadow-[24px_0_70px_rgba(0,0,0,0.35)] lg:hidden"
             >
               <button
                 type="button"
@@ -112,7 +119,7 @@ export function Sidebar({
               >
                 <X size={18} />
               </button>
-              <SidebarNav onNavigate={onClose} />
+              <SidebarNav onNavigate={onClose} space={space} mobile />
             </motion.aside>
           </>
         ) : null}
@@ -121,8 +128,39 @@ export function Sidebar({
   }
 
   return (
-    <aside className="ken-sidebar sticky top-0 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] p-4 lg:block">
-      <SidebarNav />
+    <aside
+      className={`pulse-sidebar sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-white/10 bg-gradient-to-b from-[#0a1020] via-[#090f1b] to-[#070b14] lg:flex lg:flex-col transition-all duration-300 ${expanded ? "w-64" : "w-16"}`}
+    >
+      {/* Header with Logo and Toggle - same structure in both states */}
+      <div className={`flex h-16 shrink-0 items-center px-3 ${expanded ? "justify-between" : "justify-center"}`}>
+        {!expanded ? (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="Expand sidebar"
+          >
+            <Menu size={20} />
+          </button>
+        ) : (
+          <>
+            <span className="pulse-wordmark text-2xl">Pulse</span>
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-slate-400 transition hover:bg-white/20 hover:text-white"
+              aria-label="Collapse sidebar"
+            >
+              <span className="text-xs">‹</span>
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Nav starts at same position in both states */}
+      <div className="flex-1 overflow-y-auto pt-2">
+        <SidebarNav space={space} expanded={expanded} />
+      </div>
     </aside>
   );
 }

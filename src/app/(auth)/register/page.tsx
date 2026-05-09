@@ -55,7 +55,7 @@ export default function RegisterPage() {
         password_confirmation: password,
       });
 
-      router.replace("/dashboard");
+      router.replace("/organize/dashboard");
     } catch (err) {
       setError(getRegisterError(err, authCopy));
     } finally {
@@ -64,15 +64,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="ken-auth-shell flex min-h-dvh items-center justify-center px-4 py-6 sm:p-6">
+    <main className="pulse-auth-shell flex min-h-dvh items-center justify-center px-4 py-6 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="ken-glass w-full max-w-[520px] rounded-[18px] px-5 py-7 text-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:min-h-[640px] sm:px-8 sm:py-9"
+        className="pulse-glass w-full max-w-[520px] rounded-[18px] px-5 py-7 text-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:min-h-[640px] sm:px-8 sm:py-9"
       >
         <div className="flex flex-col items-center">
-          <div className="ken-wordmark text-2xl">KEN</div>
+          <div className="pulse-wordmark text-2xl">Pulse</div>
 
           <div className="mt-4 text-center text-2xl font-semibold text-white sm:text-3xl">
             {authCopy.welcome}
@@ -114,7 +114,7 @@ export default function RegisterPage() {
           </div>
 
           {error ? (
-            <div className="ken-auth-alert rounded-[10px] px-4 py-3 text-sm">
+            <div className="pulse-auth-alert rounded-[10px] px-4 py-3 text-sm">
               {error}
             </div>
           ) : null}
@@ -146,7 +146,7 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => {
-              window.location.assign(getGoogleRedirectUrl("/dashboard"));
+              window.location.assign(getGoogleRedirectUrl("/organize/dashboard"));
             }}
             className="flex w-full items-center justify-center gap-3 rounded-[12px] border border-slate-300 bg-white px-3 py-3 text-center text-[15px] font-semibold text-slate-700 hover:bg-slate-50"
           >

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Menu, Moon, Search, Settings, Sparkles, Sun } from "lucide-react";
+import { Briefcase, ChevronDown, Heart, LogOut, Menu, Moon, Search, Settings, Sparkles, Sun } from "lucide-react";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useLogoutMutation } from "@/features/auth/queries/use-logout-mutation";
 import { useLanguageCopy } from "@/lib/i18n";
@@ -28,11 +28,17 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const router = useRouter();
   const logoutMutation = useLogoutMutation(() => router.replace("/"));
   const [menuOpen, setMenuOpen] = useState(false);
+  const [spaceDropdownOpen, setSpaceDropdownOpen] = useState(false);
+  const spaceDropdownRef = useRef<HTMLDivElement>(null);
   const theme = useSyncExternalStore(subscribeToTheme, getPreferredTheme, getServerTheme);
   const { copy, language } = useLanguageCopy();
   const headerCopy = copy.header;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+  const pathname = usePathname();
+  const currentSpace = useMemo<"organize" | "lifestyle">(() => {
+    return pathname?.startsWith("/lifestyle") ? "lifestyle" : "organize";
+  }, [pathname]);
 
   useEffect(() => {
     applyTheme(theme);
@@ -47,11 +53,18 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       ) {
         setMenuOpen(false);
       }
+      if (
+        spaceDropdownOpen &&
+        spaceDropdownRef.current &&
+        !spaceDropdownRef.current.contains(event.target as Node)
+      ) {
+        setSpaceDropdownOpen(false);
+      }
     };
 
     window.addEventListener("mousedown", handleClickOutside);
     return () => window.removeEventListener("mousedown", handleClickOutside);
-  }, [menuOpen]);
+  }, [menuOpen, spaceDropdownOpen]);
 
   return (
     <header className="relative z-50 min-h-16 border-b border-white/10 bg-[#0a0f1a]/90 px-3 py-3 backdrop-blur sm:px-6">
@@ -64,6 +77,53 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         >
           <Menu size={20} />
         </button>
+
+        {/* Space Switcher */}
+        <div className="relative shrink-0" ref={spaceDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setSpaceDropdownOpen((open) => !open)}
+            className="flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              {currentSpace === "organize" ? (
+                <Briefcase size={18} className="text-cyan-300" />
+              ) : (
+                <Heart size={18} className="text-emerald-300" />
+              )}
+            </span>
+            <span className="hidden sm:inline">
+              {currentSpace === "organize" ? "Pulse Organize" : "Pulse Lifestyle"}
+            </span>
+            <ChevronDown size={14} className={`text-slate-400 transition-transform ${spaceDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+          <AnimatePresence>
+            {spaceDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#0c1221]/95 shadow-[0_20px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/10"
+              >
+                <Link
+                  href={currentSpace === "organize" ? "/lifestyle/dashboard" : "/organize/dashboard"}
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+                  onClick={() => setSpaceDropdownOpen(false)}
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                    {currentSpace === "organize" ? (
+                      <Heart size={18} className="text-emerald-300" />
+                    ) : (
+                      <Briefcase size={18} className="text-cyan-300" />
+                    )}
+                  </span>
+                  {currentSpace === "organize" ? "Pulse Lifestyle" : "Pulse Organize"}
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <div className="min-w-0 flex-1">
           <label htmlFor="header-search" className="sr-only">
@@ -124,7 +184,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     className="absolute right-0 z-50 mt-3 w-48 overflow-hidden rounded-2xl border border-white/10 bg-[#0c1221]/95 shadow-[0_20px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/10"
                   >
                     <Link
-                      href="/settings"
+                      href={`/${currentSpace}/settings`}
                       className="flex items-center gap-2 px-4 py-3 text-sm text-slate-200 transition hover:bg-white/5 hover:text-white"
                       onClick={() => setMenuOpen(false)}
                     >

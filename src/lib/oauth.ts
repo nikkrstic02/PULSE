@@ -1,4 +1,4 @@
-const DEFAULT_APP_PATH = "/dashboard";
+const DEFAULT_APP_PATH = "/organize/dashboard";
 
 export function getAppUrl(req: Request): string {
   const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;

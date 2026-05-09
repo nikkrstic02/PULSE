@@ -71,7 +71,7 @@ export async function setGoogleState(state: string, nextPath: string) {
 export async function readAndClearGoogleState() {
   const jar = await cookies();
   const state = jar.get(GOOGLE_STATE_COOKIE)?.value || null;
-  const nextPath = jar.get(GOOGLE_NEXT_COOKIE)?.value || "/dashboard";
+  const nextPath = jar.get(GOOGLE_NEXT_COOKIE)?.value || "/organize/dashboard";
 
   jar.set(GOOGLE_STATE_COOKIE, "", { path: "/", maxAge: 0 });
   jar.set(GOOGLE_NEXT_COOKIE, "", { path: "/", maxAge: 0 });

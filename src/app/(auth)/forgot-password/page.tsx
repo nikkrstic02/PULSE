@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
     <main className="ken-auth-shell flex min-h-dvh items-center justify-center px-4 py-6 sm:p-6">
       <div className="ken-glass w-full max-w-[520px] rounded-[18px] px-5 py-7 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:px-8 sm:py-9">
         <div className="flex flex-col items-center">
-          <div className="ken-wordmark text-2xl">KEN</div>
+          <div className="pulse-wordmark text-2xl">Pulse</div>
           <div className="mt-4 text-center text-2xl font-semibold text-white sm:text-3xl">{authCopy.changePassword}</div>
           <div className="mt-4 text-center text-sm leading-6 text-slate-300">
             {authCopy.resetHelp}
